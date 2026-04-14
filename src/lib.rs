@@ -57,7 +57,7 @@ impl ModSettings {
             create_int: mod_section.create_int,
             sources_are_somewhere_else: mod_section.compile_outsideof_kf,
             path_source_files: PathBuf::from(&global_section.dir_source_files)
-                .join(global_section.package_name.clone()),
+                .join(mod_section.dir_name.as_deref().unwrap_or(&global_section.package_name)),
             alt_directories: mod_section.alt_directories,
             move_files: mod_section.move_files,
             make_redirect: mod_section.make_redirect,
@@ -127,14 +127,14 @@ impl CompilationPaths {
 
             ucc_exe: Rc::new(compile_dir.join("System").join("UCC.exe")),
             temp_kf_ini: compile_dir.join("System").join(COMPILATION_CONFIG_NAME),
-            temp_steam_appid: Rc::new(compile_dir.join(format!("System\\{STEAM_APPID_TXT}"))),
+            temp_steam_appid: Rc::new(compile_dir.join("System").join(STEAM_APPID_TXT)),
 
-            path_package_u: compile_dir.join(format!("System\\{package_name}.u")),
-            path_package_ucl: compile_dir.join(format!("System\\{package_name}.ucl")),
-            path_package_uz2: compile_dir.join(format!("Redirect\\{package_name}.u.uz2")),
-            path_package_uz2_init: compile_dir.join(format!("System\\{package_name}.u.uz2")),
-            path_package_int: compile_dir.join(format!("System\\{package_name}.int")),
-            path_package_ini: compile_dir.join(format!("System\\{package_name}.ini")),
+            path_package_u: compile_dir.join("System").join(format!("{package_name}.u")),
+            path_package_ucl: compile_dir.join("System").join(format!("{package_name}.ucl")),
+            path_package_uz2: compile_dir.join("Redirect").join(format!("{package_name}.u.uz2")),
+            path_package_uz2_init: compile_dir.join("System").join(format!("{package_name}.u.uz2")),
+            path_package_int: compile_dir.join("System").join(format!("{package_name}.int")),
+            path_package_ini: compile_dir.join("System").join(format!("{package_name}.ini")),
 
             name_package_u: format!("{package_name}.u"),
             name_package_ucl: format!("{package_name}.ucl"),
@@ -166,6 +166,8 @@ pub struct RuntimeVariables {
     pub mod_settings: ModSettings,
     pub paths: CompilationPaths,
     pub sources_copied_state: SourcesCopied,
+    /// Command used to run UCC.exe on Linux (e.g. "wine"). None on Windows.
+    pub wine_runner: Option<String>,
 }
 
 impl RuntimeVariables {
@@ -175,6 +177,7 @@ impl RuntimeVariables {
             mod_settings: ModSettings::new(parsed_config),
             paths: CompilationPaths::new(parsed_config),
             sources_copied_state: SourcesCopied::default(),
+            wine_runner: parsed_config.global_section.wine_runner.clone(),
         }
     }
 }

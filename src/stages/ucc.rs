@@ -18,8 +18,18 @@ use std::process::{ChildStdout, Command, Stdio};
 fn compile(runtime_vars: &RuntimeVariables) -> Result<(), CompileToolErrors> {
     print_fancy_block("Start compilation");
 
+    #[cfg(target_os = "windows")]
     let mut child = Command::new(runtime_vars.paths.ucc_exe.as_ref())
         .stdout(Stdio::piped())
+        .arg("make")
+        .arg(format!("ini={COMPILATION_CONFIG_NAME}"))
+        .arg("-EXPORTCACHE")
+        .spawn()?;
+
+    #[cfg(target_os = "linux")]
+    let mut child = Command::new(runtime_vars.wine_runner.as_deref().unwrap_or("wine"))
+        .stdout(Stdio::piped())
+        .arg(runtime_vars.paths.ucc_exe.as_ref())
         .arg("make")
         .arg(format!("ini={COMPILATION_CONFIG_NAME}"))
         .arg("-EXPORTCACHE")
@@ -55,10 +65,20 @@ fn dumpint(runtime_vars: &RuntimeVariables) -> Result<(), CompileToolErrors> {
 
     print_fancy_block("Create localization file");
 
+    #[cfg(target_os = "windows")]
     let mut child = Command::new("cmd")
         .current_dir(runtime_vars.paths.compile_dir_system.as_path())
         .stdout(Stdio::piped())
         .arg("/C")
+        .arg("UCC.exe")
+        .arg("dumpint")
+        .arg(&runtime_vars.paths.name_package_u)
+        .spawn()?;
+
+    #[cfg(target_os = "linux")]
+    let mut child = Command::new(runtime_vars.wine_runner.as_deref().unwrap_or("wine"))
+        .current_dir(runtime_vars.paths.compile_dir_system.as_path())
+        .stdout(Stdio::piped())
         .arg("UCC.exe")
         .arg("dumpint")
         .arg(&runtime_vars.paths.name_package_u)

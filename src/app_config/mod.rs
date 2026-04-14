@@ -1,6 +1,7 @@
 pub mod parser;
 
 /// Default app config content.
+#[cfg(target_os = "windows")]
 const APP_CONFIG_TEMPLATE: &str = r";= Home repo: https://github.com/InsultingPros/KFCompileTool
 [Global]
 mutatorName=BitCore
@@ -9,6 +10,29 @@ dir_Classes=D:\Documents\Killing Floor Archive\03. Projects\Mods
 dir_Redirect=D:\Games\KF Dedicated Server\Redirect
 dir_MoveTo=D:\Games\SteamLibrary\steamapps\common\KillingFloor
 dir_ReleaseOutput=C:\Users\Pepe User\Desktop\Mutators
+
+[BitCore]
+EditPackages=BitCore
+bICompileOutsideofKF=True
+bAltDirectories=False
+bMoveFiles=False
+bCreateINT=True
+bMakeRedirect=True
+bMakeRelease=True
+";
+
+/// Default app config content for Linux.
+#[cfg(target_os = "linux")]
+const APP_CONFIG_TEMPLATE: &str = r";= Home repo: https://github.com/InsultingPros/KFCompileTool
+[Global]
+mutatorName=BitCore
+dir_Compile=/home/user/.steam/steam/steamapps/common/KillingFloor
+dir_Classes=/home/user/projects/kf-mods
+dir_Redirect=/home/user/.steam/steam/steamapps/common/KillingFloor/Redirect
+dir_MoveTo=/home/user/.steam/steam/steamapps/common/KillingFloor
+dir_ReleaseOutput=/home/user/projects/kf-mods/releases
+; Command used to run UCC.exe (e.g. wine, or full path to a proton binary)
+wine_runner=wine
 
 [BitCore]
 EditPackages=BitCore
@@ -45,6 +69,8 @@ pub struct GlobalSection {
     pub dir_copy_to: Option<String>,
     /// Release folder.
     pub dir_release_output: Option<String>,
+    /// Command used to run UCC.exe on Linux (e.g. "wine").
+    pub wine_runner: Option<String>,
 }
 
 /// Per mod section of config file.
@@ -67,4 +93,6 @@ pub struct ModSection {
     pub make_redirect: bool,
     /// Move compiled files to `dir_release_output`.
     pub make_release: bool,
+    /// Override the source folder name (defaults to package name if not set).
+    pub dir_name: Option<String>,
 }

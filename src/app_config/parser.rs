@@ -74,6 +74,7 @@ fn parse_global_section(
     let dir_redirect = config.get(GLOBAL_SECTION_NAME, "dir_Redirect");
     let dir_copy_to = config.get(GLOBAL_SECTION_NAME, "dir_MoveTo");
     let dir_release_output = config.get(GLOBAL_SECTION_NAME, "dir_ReleaseOutput");
+    let wine_runner = config.get(GLOBAL_SECTION_NAME, "wine_runner");
 
     Ok(GlobalSection {
         package_name,
@@ -82,6 +83,7 @@ fn parse_global_section(
         dir_redirect,
         dir_copy_to,
         dir_release_output,
+        wine_runner,
     })
 }
 
@@ -105,6 +107,7 @@ fn parse_mod_section(config: &Ini, mod_section: &str) -> Result<ModSection, Comp
     let create_int = get_cfg_bool_unwrap_or_default("bCreateINT", mod_section, config);
     let make_redirect = get_cfg_bool_unwrap_or_default("bMakeRedirect", mod_section, config);
     let make_release = get_cfg_bool_unwrap_or_default("bMakeRelease", mod_section, config);
+    let dir_name = config.get(mod_section, "dir_name");
 
     Ok(ModSection {
         edit_packages,
@@ -114,6 +117,7 @@ fn parse_mod_section(config: &Ini, mod_section: &str) -> Result<ModSection, Comp
         create_int,
         make_redirect,
         make_release,
+        dir_name,
     })
 }
 
